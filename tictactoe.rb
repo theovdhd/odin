@@ -1,5 +1,5 @@
 class Game
-    def init
+    def initialize
         @board = Array.new(3) {Array.new(3, '_')}
         @turn = 'X'
         self.play()
@@ -9,22 +9,23 @@ class Game
         self.show()
         @complete = false
         while not @complete
-            self.move()
-            self.show()
-            self.check()
-            if @turn == 'X'
-                @turn ='O'
-            elsif @turn == 'O'
-                @turn = 'X'
-            end
+            move
+            show
+            check
+            switch_turns
         end
-        self.replay()
+        replay
     end
+
+    def switch_turns
+        @turn = @turn == 'X' ? 'O' : 'X'
+    end
+
     def replay
         puts "Play again? (Y/N)"
         choice = gets.chomp.upcase
         if choice == 'Y'
-            self.init()
+            Game.new
         end
     end
     def show
@@ -49,7 +50,6 @@ class Game
                 puts "please specify col (0, 1 or 2)"
                 col = gets.chomp.to_i
             end
-            puts "rn we got #{@board[row][col]}"
             valid = @board[row][col] == '_' ? true : false
             if not valid
                 puts "Position already taken. Try again."
@@ -83,8 +83,12 @@ class Game
             puts "#{@turn} won!"
             @complete = true
         end 
+
+        if !@board.flatten.include?('_')
+            puts "Game finished with no winner."
+            @complete = true
+        end
     end
 end
 
 game = Game.new
-game.init()
