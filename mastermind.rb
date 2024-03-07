@@ -1,5 +1,4 @@
 require 'colorize'
-system "clear"
 
 class Game
     @@color_ids = {
@@ -15,8 +14,11 @@ class Game
     def initialize
         generate_secret
         @board = Board.new(@secret, @@color_ids)
-        guess
-        @board.show
+        win = false
+        until win
+            guess
+            win = @board.show
+        end
     end
 
     private
@@ -65,32 +67,41 @@ class Board
     def initialize(secret, color_ids, width = 4, length = 10)
         @@color_ids = color_ids
         @secret = secret
-        puts "secret: " + @secret.to_s
         secret.each{|x| print (" " + @@color_ids.keys[x] + " ").colorize(:background => String.colors[x])}
         puts
         @board = []
-        @board << ["R", "G", "Y", "P"]
-        @board << ["W", "Y", "P", "X"]
         show
     end
     
     def match(row, secret)
+        #puts row.to_s
+        #puts secret.to_s
         exact_match = 0
         color_match = 0
-        secret.each_with_index do |s, i|
+        secret.each_with_index do |s, i|            
             if s == @@color_ids[row[i]]   
                 exact_match += 1
+            elsif secret.include?(@@color_ids[row[i]])
+                color_match += 1
             end
         end
-        puts exact_match
+        return exact_match, color_match
     end
 
     def show
+        system "clear"
         @board.each do |row|
             row.each{|x| print (" " + x + " ").colorize(:background => String.colors[@@color_ids[x]])}
             print(' ')
-            match(row, @secret)
-            puts ""
+            @exact_match, color_match = match(row, @secret)
+            print ' ' + @exact_match.to_s + ' | ' + color_match.to_s
+            puts puts
+        end
+
+        if @exact_match == 4
+            return true
+        else
+            return false
         end
     end
 
