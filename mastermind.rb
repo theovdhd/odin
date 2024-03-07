@@ -1,14 +1,10 @@
 require 'colorize'
 system "clear"
-color = :green
-(0..17).each{|x| print "  ".colorize( :background => String.colors[x] )}
-
-
 
 class Game
     def initialize
         generate_secret
-        @board = Board.new()
+        @board = Board.new(@secret)
     end
 
     private
@@ -20,7 +16,7 @@ class Game
         end
         @secret = []
         size.times{
-            r = rand(1..colors)
+            r = rand(0..colors-1)
             if unique
                 while @secret.include?(r)
                     r = rand(1..colors)
@@ -28,14 +24,52 @@ class Game
             end
             @secret << r
         }
+        puts "secret: " + @secret.to_s
     end
 
 
 end
 
 class Board
-    def initialize(width = 4, length = 10)
-        @board = Array.new(length) {Array.new(width)}
+    @@color_ids = {
+        'X' => 0,
+        'R' => 1,
+        'G' => 2,
+        'Y' => 3,
+        'B' => 4,
+        'P' => 5,
+        'C' => 6,
+        'W' => 7
+    }
+    puts @@color_ids[7]
+    def initialize(secret, width = 4, length = 10)
+        @secret = secret
+        @board = []
+        @board << ["R", "G", "Y", "P"]
+        @board << ["W", "Y", "P", "X"]
+        show
+    end
+
+    def match(row, secret)
+        puts "row: " + row.to_s
+        exact_match = 0
+        color_match = 0
+        secret.each_with_index do |s, i|
+            if s == @@color_ids[row[i]]   
+                exact_match += 1
+            end
+        end
+        puts exact_match    
+
+
+    end
+
+    def show
+        @board.each do |row|
+            row.each{|x| print (" " + x + " ").colorize(:background => String.colors[@@color_ids[x]])}
+            match(row, @secret)
+            puts ""
+        end
     end
 end
 
